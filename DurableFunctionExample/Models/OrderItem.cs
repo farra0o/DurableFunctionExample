@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DurableFunctionExample.Models
 {
-    internal class OrderItem
+    public class OrderItem
     {
-        public string productID { get; set; }
-        public int quantity { get; set; }
-        public decimal price { get; set; }
+        [Key]
+        public int OrderItemId { get; set; }
 
+        public int Quantity { get; set; }
+        [Required]
+        public decimal UnitPrice { get; set; }
+        // FK
+        [ForeignKey("Order")]
+        public int OrderId { get; set; }
+        public Order Order { get; set; }
     }
-
 }
