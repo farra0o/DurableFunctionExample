@@ -11,11 +11,11 @@ var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
 
+builder.Services.AddDbContext<OrderDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnectionString")));
 builder.Services
     .AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights();
 
-builder.Services.AddDbContext<OrdersDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnectionString")));
-
-builder.Build().Run();
+var app = builder.Build();
+app.Run();
