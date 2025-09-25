@@ -20,7 +20,6 @@ function handleCredentialResponse(response) {
     
 }
 
-
 function SetData()
 {
     const userName = localStorage.getItem('user_name');
@@ -119,27 +118,25 @@ function updateCart() {
 function prepareOrderPayload() {
     
     const userEmail = localStorage.getItem('user_email');
-
-    // Calcular el total
-    const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    
- const orderItems = cart.map(item => ({
-        Name: item.name,
+    const userName = localStorage.getItem('user_name');
+    const orderItems = cart.map(item => ({
         ProductId: item.id,
         Quantity: item.quantity,
-        UnitPrice: item.price
     }));
 
     return {
         UserEmail: userEmail,
+        userName: userName,
         Items: orderItems
     };
+    
 }
 
-console.log (Items);
+
 function processPayment() {
-    placeOrder();
+    
+    var Json = prepareOrderPayload();
+    console.log("JSON to send: ", Json);
     const orderPayload = prepareOrderPayload();
     const idTokenPayment = localStorage.getItem('id_token');
     console.log("TOKEN AUTHORIZATION: ", idTokenPayment);

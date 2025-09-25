@@ -9,7 +9,7 @@ namespace DurableFunctionExample.Funtions.Orchestrators;
 public static class Orchestrator
 {
     [Function(nameof(Orchestrator))]
-    public static async Task<List<string>> RunOrchestrator(
+    public static async Task<List<string>> Run(
         [OrchestrationTrigger] TaskOrchestrationContext context)
     {
         ILogger logger = context.CreateReplaySafeLogger(nameof(Orchestrator));
