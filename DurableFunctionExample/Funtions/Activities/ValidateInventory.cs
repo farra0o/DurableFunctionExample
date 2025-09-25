@@ -27,7 +27,7 @@ public class ValidateInventory
             foreach (var item in order.Items)
             {
                 var product = await _db.Items
-                    .FindAsync(item.ItemId); // Busca por ProductId en tu tabla Inventory
+                    .FindAsync(item.ItemId); 
 
                 if (product == null)
                 {

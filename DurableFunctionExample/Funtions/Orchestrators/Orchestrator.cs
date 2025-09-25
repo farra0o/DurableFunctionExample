@@ -15,21 +15,13 @@ public static class Orchestrator
     {
         ILogger logger = context.CreateReplaySafeLogger(nameof(Orchestrator));
         logger.LogInformation("Orchstrator Intro");
-        var testRequest = new RequestDTO
-        {
-            UserEmail = "test@test.com",
-            userName = "tester",
-            Items = new List<CreateItemOrderDTO>
-    {
-        new CreateItemOrderDTO { ItemId = 1, Quantity = 2 }
-    }
-        };
+        var requestDTO =context.GetInput<RequestDTO>();
+
         //01 Validar inventario
         bool inventoryOk = false;
         try
         {
-            
-            inventoryOk = await context.CallActivityAsync<bool>("ValidateInventory", testRequest);
+            inventoryOk = await context.CallActivityAsync<bool>("ValidateInventory", requestDTO);
             logger.LogInformation($"Inventario validado: {inventoryOk}");
         }
         catch (Exception ex)
