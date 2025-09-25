@@ -120,13 +120,13 @@ function prepareOrderPayload() {
     const userEmail = localStorage.getItem('user_email');
     const userName = localStorage.getItem('user_name');
     const orderItems = cart.map(item => ({
-        ProductId: item.id,
+        ItemId: item.id,
         Quantity: item.quantity,
     }));
 
     return {
         UserEmail: userEmail,
-        userName: userName,
+        UserName: userName,
         Items: orderItems
     };
     

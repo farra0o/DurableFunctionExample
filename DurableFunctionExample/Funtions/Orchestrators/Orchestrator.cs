@@ -1,4 +1,5 @@
 using DurableFunctionExample.DTO;
+using DurableFunctionExample.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
@@ -35,6 +36,10 @@ public static class Orchestrator
             return false;
         }
         //02 Crear Usuario
+        User user= null;
+        user = await context.CallActivityAsync<User>("CreateUser", requestDTO);
+        
+      
         //03 Crear Orden
         //04 validar pago
         //05 actualizar estado de la orden
