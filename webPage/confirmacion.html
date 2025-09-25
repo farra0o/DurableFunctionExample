@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Order System</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="styleSheet" href="style.css">
+</head>  
+<body>
+
+    
+    <div class="confirmation-container">
+        <div class="status-icon" id="statusIcon">✅</div>
+        <h1 id="statusTitle">Order Confirmed!</h1>
+        <p class="status-message" id="statusMessage">Your order has been successfully placed.</p>
+        
+        <div class="order-details">
+            <div class="detail-row">
+                <span>Order Status:</span>
+                <span id="orderStatus">Paid</span>
+            </div>
+            <div class="detail-row">
+                <span>Total Amount:</span>
+                <span id="orderTotal">$0</span>
+            </div>
+            <div class="detail-row">
+                <span>Order Number:</span>
+                <span>#ORD-<span id="orderNumber">000000</span></span>
+            </div>
+            <div class="detail-row">
+                <span>Date:</span>
+                <span id="orderDate">-</span>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn continue-btn" onclick="window.location.href='products.html'">Continue Shopping</button>
+            <button class="action-btn new-order-btn" onclick="newOrder()">New Order</button>
+        </div>
+    </div>
+
+    <script>
+        function newOrder() {
+            localStorage.removeItem('cart');
+            localStorage.removeItem('orderStatus');
+            localStorage.removeItem('orderTotal');
+            window.location.href = 'products.html';
+        }
+
+        // Initialize page with order details
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderStatus = localStorage.getItem('orderStatus') || 'ordered';
+            const orderTotal = localStorage.getItem('orderTotal') || '0';
+            const orderNumber = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+            const orderDate = new Date().toLocaleDateString();
+            
+            document.getElementById('orderTotal').textContent = `$${orderTotal}`;
+            document.getElementById('orderNumber').textContent = orderNumber;
+            document.getElementById('orderDate').textContent = orderDate;
+            
+            if (orderStatus === 'paid') {
+                document.getElementById('statusIcon').textContent = '✅';
+                document.getElementById('statusTitle').textContent = 'Payment Successful!';
+                document.getElementById('statusMessage').textContent = 'Your payment has been processed successfully.';
+                document.getElementById('orderStatus').textContent = 'Paid';
+            } else {
+                document.getElementById('statusIcon').textContent = '📦';
+                document.getElementById('statusTitle').textContent = 'Order Fail!';
+                document.getElementById('statusMessage').textContent = 'Your order has been reject.';
+                document.getElementById('orderStatus').textContent = 'Ordered (No Payment)';
+            }
+        });
+    </script>
+</body>
