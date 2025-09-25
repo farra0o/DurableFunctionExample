@@ -40,7 +40,7 @@ public class CreateOrder
                 var item = itemsFromDb.First(x => x.ItemId == i.ItemId);
                 return new ItemOrder
                 {
-                    ItemOrderId = i.ItemId,
+                    
                     Cantidad = i.Quantity,
                     Item = new ItemInOrderDto
                     {

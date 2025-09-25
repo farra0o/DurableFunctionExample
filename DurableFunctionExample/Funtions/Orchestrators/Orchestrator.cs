@@ -20,29 +20,19 @@ public static class Orchestrator
 
         //01 Validar inventario
         bool inventoryOk = false;
-        try
-        {
-            inventoryOk = await context.CallActivityAsync<bool>("ValidateInventory", requestDTO);
-            logger.LogInformation($"Inventario validado: {inventoryOk}");
-        }
-        catch (Exception ex)
-        {
-            logger.LogInformation($"Error al validar inventario: {ex.Message}");
-            return true;
-        }
-
-        if (!inventoryOk)
-        {
-            return false;
-        }
+        
+        inventoryOk = await context.CallActivityAsync<bool>("ValidateInventory", requestDTO);
+        logger.LogInformation($"Inventario validado: {inventoryOk}");
+     
         //02 Crear Usuario y devolver UserRequestDTO
         UserWithRequestDTO userWRequest = null;
         userWRequest = await context.CallActivityAsync<UserWithRequestDTO>("CreateUser", requestDTO);
-        
-        Order order = null;
+
         //03 Crear Orden
+        Order order = null;
         order = await context.CallActivityAsync<Order>("CreateOrder", userWRequest);
         //04 validar pago
+
         //05 actualizar estado de la orden
         //05 ActualizarStock
         //06 Envviar json de la orden
