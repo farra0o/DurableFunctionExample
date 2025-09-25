@@ -36,7 +36,7 @@ public class CheckPayment
         //_db.Orders.Update(order);
         //await _db.SaveChangesAsync();
 
-        _logger.LogInformation("Orden {OrderId} actualizada: PaymentStatus={PaymentStatus}", order.OrderId, order.PaymentStatus);
+        _logger.LogInformation("Orden {OrderId} actualizada con codigo de pago: PaymentStatus={PaymentStatus} , Referencia 1= Aceptada 2=Rechazada", order.OrderId, order.PaymentStatus);
 
         return order;
     }

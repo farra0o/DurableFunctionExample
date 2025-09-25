@@ -32,8 +32,9 @@ public static class Orchestrator
         Order order = null;
         order = await context.CallActivityAsync<Order>("CreateOrder", userWRequest);
         //04 validar pago
-
+        order = await context.CallActivityAsync<Order>("CheckPayment", order);
         //05 actualizar estado de la orden
+        
         //05 ActualizarStock
         //06 Envviar json de la orden
         // http para Validar token enviar 202 y llamar a la funcion orquestadora
