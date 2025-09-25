@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Order System</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="styleSheet" href="style.css">
+</head>
+<body class="bodyProduct" onload="SetData()">
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🛒 OrderSystem</div>
+            <div class="user-info">
+                <div class="cart-icon" onclick="window.location.href='checkout.html'">
+                    🛒
+                    <div class="cart-count" id="cartCount">0</div>
+                </div>
+                    <div id="userInfoDiv">
+                        <!-- usuario -->
+                    </div>
+                    <button id="log Out" onclick="SignOut()">
+                        LOG OUT 
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <h1 class="page-title">Our Products</h1>
+        
+        <div class="products-grid">
+            <!-- Product 1 -->
+            <div class="product-card">
+                <img src="http://static.photos/technology/320x240/1" alt="Laptop" class="product-image">
+                <div class="product-info">
+                    <h3 class="product-name">Gaming Laptop</h3>
+                    
+                    
+                    <p class="product-description">High-performance laptop for gaming and professional work</p>
+                    <div class="product-price">$1,299</div>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="decreaseQuantity(1)">-</button>
+                        <span class="quantity-display" id="quantity-1">1</span>
+                        <button class="quantity-btn" onclick="increaseQuantity(1)">+</button>
+                    </div>
+                    <button class="add-to-cart" onclick="addToCart(1, 'Gaming Laptop', 1299)">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card">
+                <img src="http://static.photos/technology/320x240/2" alt="Smartphone" class="product-image">
+                <div class="product-info">
+                    <h3 class="product-name">Smartphone Pro</h3>
+                    <p class="product-description">Latest smartphone with advanced camera and performance</p>
+                    <div class="product-price">$899</div>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="decreaseQuantity(2)">-</button>
+                        <span class="quantity-display" id="quantity-2">1</span>
+                        <button class="quantity-btn" onclick="increaseQuantity(2)">+</button>
+                    </div>
+                    <button class="add-to-cart" onclick="addToCart(2, 'Smartphone Pro', 899)">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-card">
+                <img src="http://static.photos/technology/320x240/3" alt="Headphones" class="product-image">
+                <div class="product-info">
+                    <h3 class="product-name">Wireless Headphones</h3>
+                    <p class="product-description">Premium noise-cancelling wireless headphones</p>
+                    <div class="product-price">$299</div>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="decreaseQuantity(3)">-</button>
+                        <span class="quantity-display" id="quantity-3">1</span>
+                        <button class="quantity-btn" onclick="increaseQuantity(3)">+</button>
+                    </div>
+                    <button class="add-to-cart" onclick="addToCart(3, 'Wireless Headphones', 299)">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="product-card">
+                <img src="http://static.photos/technology/320x240/4" alt="Tablet" class="product-image">
+                <div class="product-info">
+                    <h3 class="product-name">Tablet Pro</h3>
+                    <p class="product-description">Powerful tablet for creativity and productivity</p>
+                    <div class="product-price">$649</div>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="decreaseQuantity(4)">-</button>
+                        <span class="quantity-display" id="quantity-4">1</span>
+                        <button class="quantity-btn" onclick="increaseQuantity(4)">+</button>
+                    </div>
+                    <button class="add-to-cart" onclick="addToCart(4, 'Tablet Pro', 649)">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 5 -->
+            <div class="product-card">
+                <img src="http://static.photos/technology/320x240/5" alt="Smart Watch" class="product-image">
+                <div class="product-info">
+                    <h3 class="product-name">Smart Watch</h3>
+                    <p class="product-description">Advanced smartwatch with health monitoring</p>
+                    <div class="product-price">$399</div>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="decreaseQuantity(5)">-</button>
+                        <span class="quantity-display" id="quantity-5">1</span>
+                        <button class="quantity-btn" onclick="increaseQuantity(5)">+</button>
+                    </div>
+                    <button class="add-to-cart" onclick="addToCart(5, 'Smart Watch', 399)">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cart-summary">
+            <h2 class="summary-title">Cart Summary</h2>
+            <div class="cart-items" id="cartItems">
+                <p>Your cart is empty</p>
+            </div>
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">$0</span>
+            </div>
+            <div class="checkout-buttons">
+                <button class="checkout-btn pay-btn" onclick="processPayment()">Process Payment</button>
+                <button class="checkout-btn order-btn" onclick="processPayment()">Place Order (No Payment)</button>
+            </div>
+        </div>
+    </main>
+    <script src="script.js"> </script>
+</body>
+</html>

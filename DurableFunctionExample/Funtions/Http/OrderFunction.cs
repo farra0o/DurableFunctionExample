@@ -1,28 +1,75 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using DurableFunctionExample.Funtions.Orchestrators;
+using DurableFunctionExample.Models;
+using Google.Apis.Auth;
 using Microsoft.Azure.Functions.Worker;
+
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using Newtonsoft.Json;
+using System.Net;
+
 
 namespace DurableFunctionExample.Funtions.Http;
 
-public class OrderFunction
-{// http para Validar token enviar 202 y llamar a la funcion orquestadora
-    private readonly ILogger<OrderFunction> _logger;
-
-    public OrderFunction(ILogger<OrderFunction> logger)
+public static class OrderFunctions
+{
+    [FunctionName("OrderHttpStart")]
+    public static async Task<HttpResponseData> OrderHttpStart(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "orders")] HttpRequestData req,
+    [Microsoft.Azure.Functions.Worker.DurableClient] DurableTaskClient client, TaskOrchestrationContext OrderContext)
     {
-        _logger = logger;
-    }
+        ILogger _logger = OrderContext.CreateReplaySafeLogger(nameof(OrderFunctions));
+        // Leer body
+        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+        var order = JsonConvert.DeserializeObject<Order>(requestBody);
 
-    [Function(nameof(OrderFunction))]
-    public async Task<HttpResponseData> OrderHttpStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", "options", Route = "orders")] HttpRequestData req,
-        [DurableClient] DurableTaskClient client)
-    {
-        _logger.LogInformation("Iniziando Function OrderFunction");
-        return default;
+        // ------------------ AUTENTICACIÓN ------------------
+        // Opción A: Easy Auth (App Service)
+        if (req.Headers.TryGetValues("X-MS-CLIENT-PRINCIPAL", out var _))
+        {
+            _logger.LogInformation("Easy Auth presente → request autenticado por App Service.");
+        }
+        else
+        {
+            // Opción B: Validación manual del token de Google
+            if (!req.Headers.TryGetValues("Authorization", out var authHeaders))
+            {
+                var unauthorized = req.CreateResponse(HttpStatusCode.Unauthorized);
+                await unauthorized.WriteStringAsync("Missing Authorization header");
+                return unauthorized;
+            }
+
+            var authHeader = authHeaders.First();
+            var idToken = authHeader.StartsWith("Bearer ") ? authHeader.Substring(7) : authHeader;
+
+            try
+            {
+                var validationSettings = new GoogleJsonWebSignature.ValidationSettings()
+                {
+                    Audience = new[] { "636723774412-jcg6n8jkr2m849i6500o4gnlkq6ji4e9.apps.googleusercontent.com" }
+                };
+
+                var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, validationSettings);
+                _logger.LogInformation($"Token válido para usuario: {payload.Email}");
+            }
+            catch (InvalidJwtException ex)
+            {
+                _logger.LogWarning($"Token inválido: {ex.Message}");
+                var unauthorized = req.CreateResponse(HttpStatusCode.Unauthorized);
+                await unauthorized.WriteStringAsync("Invalid Google token");
+                return unauthorized;
+            }
+        }
+
+        // ------------------ ORQUESTACIÓN ------------------
+        string instanceId = await client.ScheduleNewOrchestrationInstanceAsync("OrderOrchestrator", order);
+        _logger.LogInformation($"Started orchestration with ID = '{instanceId}'.");
+
+        // Retornar 202 Accepted con URIs de polling (statusQueryGetUri, etc.)
+        return await client.CreateCheckStatusResponseAsync(req, instanceId);
     }
 }
