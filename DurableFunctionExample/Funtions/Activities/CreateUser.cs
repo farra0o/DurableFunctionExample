@@ -18,20 +18,25 @@ public class CreateUser
         _db = db;
     }
     [Function(nameof(CreateUser))]
-    public async Task<User> Run([ActivityTrigger] RequestDTO RequestUser)
+    public async Task<UserWithRequestDTO> Run([ActivityTrigger] RequestDTO RequestUser)
     {
+        
         try
         {
-            _logger.LogInformation("CrearUser ", RequestUser.UserEmail);
-
+            _logger.LogInformation("CrearUser {UserEmail}", RequestUser.UserEmail);
             // Verificar si ya existe el usuario por correo
             var usuarioExistente = await _db.Users
                 .FirstOrDefaultAsync(u => u.Correo == RequestUser.UserEmail);
 
             if (usuarioExistente != null)
             {
-                _logger.LogInformation("El usuario ya existe ",RequestUser.UserEmail, usuarioExistente.Id);
-                return usuarioExistente;
+                _logger.LogInformation("El usuario ya existe");
+                var usuarioWithRequest = new UserWithRequestDTO
+                {
+                    UserId = usuarioExistente.Id,
+                    Request = RequestUser
+                };
+                return usuarioWithRequest;
             }
 
             //Sino crear el nuevo usuario
@@ -44,15 +49,14 @@ public class CreateUser
             _db.Users.Add(usuario);
             await _db.SaveChangesAsync();
 
-            _logger.LogInformation("Usuario creado exitosamente ",usuario.Correo, usuario.Id);
+            _logger.LogInformation("Usuario creado exitosamente {Id} ", usuario.Id);
 
-            return usuario;
+            return new UserWithRequestDTO { UserId = usuario.Id, Request = RequestUser };
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al crear o buscar usuario ", RequestUser.UserEmail);
+            _logger.LogError(ex, "Error al crear o buscar usuario ");
             throw;
         }
-
     }
 }

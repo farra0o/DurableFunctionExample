@@ -35,12 +35,13 @@ public static class Orchestrator
         {
             return false;
         }
-        //02 Crear Usuario
-        User user= null;
-        user = await context.CallActivityAsync<User>("CreateUser", requestDTO);
+        //02 Crear Usuario y devolver UserRequestDTO
+        UserWithRequestDTO userWRequest = null;
+        userWRequest = await context.CallActivityAsync<UserWithRequestDTO>("CreateUser", requestDTO);
         
-      
+        Order order = null;
         //03 Crear Orden
+        order = await context.CallActivityAsync<Order>("CreateOrder", userWRequest);
         //04 validar pago
         //05 actualizar estado de la orden
         //05 ActualizarStock

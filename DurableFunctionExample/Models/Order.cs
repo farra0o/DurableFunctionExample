@@ -16,7 +16,7 @@ namespace DurableFunctionExample.Models
         public ICollection<ItemOrder> Items { get; set; }
         [DataType(DataType.Date)]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public decimal TotalPrice => Items.Sum(item => item.Cantidad * item.Item.Price);
+        public decimal TotalPrice { get; set; }
         public int Status { get; set; }
         public int PaymentStatus { get; set; }
     }
