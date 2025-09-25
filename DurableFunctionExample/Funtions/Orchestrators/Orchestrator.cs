@@ -1,3 +1,4 @@
+using DurableFunctionExample.DTO;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
@@ -9,12 +10,38 @@ namespace DurableFunctionExample.Funtions.Orchestrators;
 public static class Orchestrator
 {
     [Function(nameof(Orchestrator))]
-    public static async Task<List<string>> Run(
+    public static async Task<bool> Run(
         [OrchestrationTrigger] TaskOrchestrationContext context)
     {
         ILogger logger = context.CreateReplaySafeLogger(nameof(Orchestrator));
         logger.LogInformation("Orchstrator Intro");
+        var testRequest = new RequestDTO
+        {
+            UserEmail = "test@test.com",
+            userName = "tester",
+            Items = new List<CreateItemOrderDTO>
+    {
+        new CreateItemOrderDTO { ItemId = 1, Quantity = 2 }
+    }
+        };
         //01 Validar inventario
+        bool inventoryOk = false;
+        try
+        {
+            
+            inventoryOk = await context.CallActivityAsync<bool>("ValidateInventory", testRequest);
+            logger.LogInformation($"Inventario validado: {inventoryOk}");
+        }
+        catch (Exception ex)
+        {
+            logger.LogInformation($"Error al validar inventario: {ex.Message}");
+            return true;
+        }
+
+        if (!inventoryOk)
+        {
+            return false;
+        }
         //02 Crear Usuario
         //03 Crear Orden
         //04 validar pago
@@ -24,7 +51,7 @@ public static class Orchestrator
         // http para Validar token enviar 202 y llamar a la funcion orquestadora
 
 
-        return default;
+        return true;
     }
 }
     

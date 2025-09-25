@@ -4,7 +4,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
-
 using Newtonsoft.Json;
 using System.Net;
 
@@ -81,7 +80,7 @@ public class OrderFunctions
         }
 
         // ------------------ ORQUESTACIÓN ------------------
-        string instanceId = await client.ScheduleNewOrchestrationInstanceAsync("OrderOrchestrator", orderRequest);
+        string instanceId = await client.ScheduleNewOrchestrationInstanceAsync("Orchestrator", orderRequest);
         _logger.LogInformation($"Started orchestration with ID = '{instanceId}'.");
 
         // Retornar 202 Accepted con URIs de polling (statusQueryGetUri, etc.)
