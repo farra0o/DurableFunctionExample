@@ -11,7 +11,7 @@ namespace DurableFunctionExample.Funtions.Orchestrators;
 public static class Orchestrator
 {
     [Function(nameof(Orchestrator))]
-    public static async Task<bool> Run(
+    public static async Task<TaskResponseDTO> Run(
         [OrchestrationTrigger] TaskOrchestrationContext context)
     {
         ILogger logger = context.CreateReplaySafeLogger(nameof(Orchestrator));
@@ -36,12 +36,15 @@ public static class Orchestrator
         //05 actualizar estado de la orden
         order = await context.CallActivityAsync<Order>("UpdateOrderStatus", order);
         //05 ActualizarStock
+        bool InventoryUpdated = false;
+        if (order.Status == 1)
+        {
+            InventoryUpdated = await context.CallActivityAsync<bool>("UpdateStock", order);
+        }
+        //06 Generar Respuesta de la orden
+        var response = await context.CallActivityAsync<TaskResponseDTO>("ResponseOrder", order);
 
-        //06 Envviar json de la orden
-        // http para Validar token enviar 202 y llamar a la funcion orquestadora
-
-
-        return true;
+        return response;
     }
 }
     
