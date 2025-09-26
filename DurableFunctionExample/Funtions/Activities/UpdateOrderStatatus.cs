@@ -24,18 +24,23 @@ public class UpdateOrderStatatus
     {
         _logger.LogInformation("Actualizando estado {OrderId}", order.OrderId);
 
+        var orderDB = await _db.Orders.FindAsync(order.OrderId);
+        if (orderDB == null)
+        {
+            _logger.LogWarning("Orden {OrderId} no encontrada", order.OrderId);
+            return null;
+        }
         if (order.PaymentStatus == 1 )
         // Actualizar PaymentStatus: 1 = aprobado, 2 = rechazado
-        order.Status = 1;
+        orderDB.Status = order.Status;
         else
-            order.Status = 2;
+            orderDB.Status = 2;
 
         // Guardar cambios en la base de datos
-        //_db.Orders.Update(order);
-        //await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync();
 
-        _logger.LogInformation("Orden {OrderId} actualizada con estado: PaymentStatus={PaymentStatus} , Referencia 1= Aceptada 2=Anulada", order.OrderId, order.Status);
+        _logger.LogInformation("Orden {OrderId} actualizada con estado: PaymentStatus={PaymentStatus} , Referencia 1= Aceptada 2=Anulada", orderDB.OrderId, orderDB.Status);
 
-        return order;
+        return orderDB;
     }
 }

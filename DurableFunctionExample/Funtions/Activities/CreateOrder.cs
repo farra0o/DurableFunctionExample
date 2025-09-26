@@ -61,8 +61,8 @@ public class CreateOrder
                 TotalPrice = total
             };
             _logger.LogInformation("Creando orden para user {UserId} con {ItemCount} items. Total: {Total}", orderResult.UserId, orderResult.Items.Count, orderResult.TotalPrice);
-            //_db.Orders.Add(orderResult);
-            //await _db.SaveChangesAsync();
+            _db.Orders.Add(orderResult);
+            await _db.SaveChangesAsync();
             return orderResult;
         }
         catch (Exception ex)

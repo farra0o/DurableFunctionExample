@@ -23,20 +23,25 @@ public class CheckPayment
     public async Task<Order> Run([ActivityTrigger] Order order)
     {
         _logger.LogInformation("Validando pago de la orden {OrderId}", order.OrderId);
-
+        var orderBD = await _db.Orders.FindAsync(order.OrderId);
+        if (orderBD == null)
+        {
+            _logger.LogWarning("Orden {OrderId} no encontrada", order.OrderId);
+            throw new Exception($"Orden {order.OrderId} no encontrada");
+        }
         // Generar random para 85% aprobado, 15% rechazado
         Random rand = new Random();
         bool isApproved = rand.Next(100) < 85;
 
         // Actualizar PaymentStatus: 1 = aprobado, 2 = rechazado
-        order.PaymentStatus = isApproved ? 1 : 2;
-        
+        orderBD.PaymentStatus = isApproved ? 1 : 2;
+
 
         // Guardar cambios en la base de datos
-        //_db.Orders.Update(order);
-        //await _db.SaveChangesAsync();
+        
+        await _db.SaveChangesAsync();
 
-        _logger.LogInformation("Orden {OrderId} actualizada con codigo de pago: PaymentStatus={PaymentStatus} , Referencia 1= Aceptada 2=Rechazada", order.OrderId, order.PaymentStatus);
+        _logger.LogInformation("Orden {OrderId} actualizada con codigo de pago: PaymentStatus={PaymentStatus} , Referencia 1= Aceptada 2=Rechazada", orderBD.OrderId, orderBD.PaymentStatus);
 
         return order;
     }

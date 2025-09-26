@@ -34,7 +34,7 @@ public static class Orchestrator
         //04 validar pago
         order = await context.CallActivityAsync<Order>("CheckPayment", order);
         //05 actualizar estado de la orden
-        order = await context.CallActivityAsync<Order>("UpdateOrderStatus", order);
+        order = await context.CallActivityAsync<Order>("UpdateOrderStatatus", order);
         //05 ActualizarStock
         bool InventoryUpdated = false;
         if (order.Status == 1)

@@ -81,6 +81,14 @@ function addToCart(id, name, price) {
 function resetQuantity(id) {
     document.getElementById(`quantity-${id}`).textContent = '1';
 }
+
+function placeOrder() {
+    if (cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+    }
+    
+}
 function updateCart() {
     const cartItemsElement = document.getElementById('cartItems');
     const cartTotalElement = document.getElementById('cartTotal');
@@ -132,54 +140,95 @@ function prepareOrderPayload() {
     
 }
 
+async function processPayment() {
+    try {
+        var Json = prepareOrderPayload();
+        console.log("JSON to send: ", Json);
 
-function processPayment() {
-    
-    var Json = prepareOrderPayload();
-    console.log("JSON to send: ", Json);
-    const orderPayload = prepareOrderPayload();
-    const idTokenPayment = localStorage.getItem('id_token');
-    console.log("TOKEN AUTHORIZATION: ", idTokenPayment);
-    fetch('http://localhost:7256/api/orders', {
-        method: 'POST',
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${idTokenPayment}`
+        const orderPayload = prepareOrderPayload();
+        const idTokenPayment = localStorage.getItem('id_token');
+        console.log("TOKEN AUTHORIZATION: ", idTokenPayment);
+        fetch('http://localhost:7256/api/orders', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${idTokenPayment}`
+                
+            },
+            body: JSON.stringify(orderPayload)
             
-        },
-        body: JSON.stringify(orderPayload)
-        
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+        console.log("Respuesta backend:", data);
+        const instanceId = data.id; // 'instanceId')
+        if (!instanceId) {
+            throw new Error("No se recibió instanceId");
         }
-        return response.json();
-    })
-    .then(data => {
-        alert(`Payment processed successfully! Total: $${orderPayload.TotalAmount}`);
-        localStorage.setItem('orderStatus', 'paid');
-        localStorage.setItem('orderTotal', orderPayload.TotalAmount);
-        window.location.href = 'confirmacion.html';
-    })
-    .catch(error => {
+        localStorage.setItem('instanceId', instanceId);
+        localStorage.setItem('statusQueryGetUri', data.statusQueryGetUri); // opcional, si quieres usar ese endpoint
+        })
+
+        .catch(error => {
         console.error('There was a problem with the fetch operation:', error);
         alert('Payment failed. Please try again.');
-    });
+        });
 
+        alert(`Order placed Total: $${total}\nPayment will processed.\nRedirecting to confirmation page...`);
+        localStorage.setItem('orderStatus', 'FAIL');
+        localStorage.setItem('orderTotal', total);
 
-    
-    alert(`Order placed Error! Total: $${total}\nPayment will not be processed.\nRedirecting to confirmation page...`);
-    localStorage.setItem('orderStatus', 'FAIL');
-    localStorage.setItem('orderTotal', total);
- 
-    //window.location.href = 'confirmacion.html';
-}
-function placeOrder() {
-    if (cart.length === 0) {
-        alert('Your cart is empty!');
-        return;
+        await OrderStatus(instanceId);
+    } 
+        
+        catch (error) {
+        console.error('Error al procesar el pago:', error);
+        alert('Ocurrió un problema al procesar el pago. Por favor, intenta de nuevo.');
+        localStorage.setItem('orderStatus', 'fail');
     }
-    
 }
 
+
+async function OrderStatus(instanceId, interval = 2000, timeout = 60000) {
+    const startTime = Date.now();
+    console.log("Checking order status for instanceId: ", instanceId);
+    return new Promise((resolve, reject) => {
+        const poll = async () => {
+            try {
+                const response = await fetch(`http://localhost:7256/api/orders/status/${instanceId}`);
+                if (!response.ok) {
+                    return reject(`Error al consultar estado: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Revisar RuntimeStatus
+                const status = data.runtimeStatus;
+                console.log(`Estado actual: ${status}`, data.customStatus);
+
+                if (status === 1) {
+                
+                    resolve(data.output);
+                } else if (status === 0 || status === 2) {
+                    reject(`La orquestación terminó con estado: ${status}`);
+                } else {
+                    // Revisar timeout
+                    if (Date.now() - startTime >= timeout) {
+                        reject("Polling excedió el tiempo máximo.");
+                    } else {
+                        setTimeout(poll, interval); // seguir haciendo polling
+                    }
+                }
+            } catch (err) {
+                reject(err);
+            }
+        };
+
+        poll();
+    });
+}
